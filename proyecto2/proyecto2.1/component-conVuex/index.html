@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue Components</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+     integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" 
+     crossorigin="anonymous">
+     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+     <script src="https://unpkg.com/vuex@3.6.2/dist/vuex.js"></script>
+</head>
+<body>
+    <div id="app" class="container mt-5 ">
+        <titulo></titulo>
+        
+    </div>
+    <script>
+        Vue.component('titulo',{
+            template: //html 
+            `
+            <div>
+                <button @click="aumentar">+</button>
+                <h1>numero: {{numero}} </h1>
+                <hijo></hijo>
+            </div>
+            `,
+            computed: {
+                ...Vuex.mapState([
+                    'numero'
+                ])
+            },
+            methods:{
+                ...Vuex.mapMutations([
+                    'aumentar','disminuir'
+                ]),
+            }
+        }),
+
+        Vue.component('hijo', {
+            template: //html 
+            `
+            <div>
+                <input v-model ="numero1"></input>
+                <button @click="aumentar">+</button>
+                <button @click="disminuir(numero1)">-</button>
+                <h1>numero: {{numero}} </h1>
+                <button @click="getDatos">Obtener Datos</button>
+                <ul v-for="curso of cursos">
+                    <li>{{curso.id}}-{{curso.nombre}}</li>
+                </ul>
+            </div>
+            `,
+            computed: {
+                ...Vuex.mapState([
+                    'numero', 'cursos'
+                ])
+            }, 
+            methods:{
+                ...Vuex.mapMutations([
+                    'aumentar','disminuir'
+                ]),
+                ...Vuex.mapActions ([
+                    'getDatos'
+                ])
+        
+            },
+            data(){
+                return {
+                    numero1: 0
+                }
+            }
+        });
+      
+        const store = new Vuex.Store({
+            state: {
+                numero: 10, 
+                cursos: []
+            }, 
+            mutations: {
+                aumentar(state){
+                    state.numero++;
+                },
+                disminuir(state,n){
+                    state.numero-=n;
+                },
+                setDatos(state, res){
+                    state.cursos = res;
+                }
+            },
+            actions: {
+                getDatos: async function({commit}){
+                const data = await fetch("text.json");
+                const res = await data.json();
+                commit('setDatos', res);
+                }
+            }
+        });
+
+     new Vue({
+         el: '#app',
+         store: store
+     })
+    </script>
+ 
